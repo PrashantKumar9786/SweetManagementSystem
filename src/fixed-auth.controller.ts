@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 // Use mock model for testing (switch to real model in production)
-import UserModel from '../models/mock-user.model';
-import { RegisterUserInput, LoginUserInput } from '../types';
+import UserModel from './models/mock-user.model';
+import { RegisterUserInput, LoginUserInput } from './types';
 
 class AuthController {
   /**
@@ -86,11 +86,7 @@ class AuthController {
       
       // Find user by email
       const user = await UserModel.findByEmail(email);
-      console.log('Login attempt for:', email);
-      console.log('User found:', user ? 'Yes' : 'No');
-      
       if (!user) {
-        console.log('Login failed: User not found');
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid credentials' 
@@ -99,26 +95,24 @@ class AuthController {
       
       // Check password
       const isPasswordValid = await user.comparePassword(password);
-      console.log('Password valid:', isPasswordValid ? 'Yes' : 'No');
-      
       if (!isPasswordValid) {
-        console.log('Login failed: Invalid password');
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid credentials' 
         });
       }
       
-      console.log('Login successful');
-      console.log('User ID:', user._id.toString());
-      console.log('Is admin:', user.is_admin);
-      
-      // Generate JWT token
+      // Generate JWT token - FIX: Ensure consistency with register method
       const token = jwt.sign(
         { userId: user._id.toString(), username: user.username, isAdmin: user.is_admin },
         process.env.JWT_SECRET || 'default_jwt_secret',
         { expiresIn: '24h' }
       );
+      
+      // Debug logging - remove in production
+      console.log('Login successful for:', email);
+      console.log('Generated token:', token);
+      console.log('User ID format:', user._id.toString());
       
       return res.status(200).json({
         success: true,

@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 import { User, UserResponse, RegisterUserInput } from '../types';
 
-// Create admin password hash
+// Create admin password hash for testing
 const adminPasswordHash = '$2b$10$Jml1s8HAHH7gdbXiYwFYn.MF38L7AwotD4K8DQQeE3NLe28YbVxAu'; // 'admin123'
 
 // Custom type for mock User
@@ -16,13 +16,10 @@ type MockUser = {
   comparePassword: (candidatePassword: string) => Promise<boolean>;
 };
 
-// Fixed admin ID for consistent authentication
-const adminId = new Types.ObjectId('5f50c31e1234567890abcdef');
-
-// In-memory storage for users - only one admin user
+// In-memory storage for users with consistent debug output
 const users: MockUser[] = [
   {
-    _id: adminId,
+    _id: new Types.ObjectId(),
     username: 'admin',
     email: 'admin@example.com',
     password: adminPasswordHash,
@@ -34,25 +31,29 @@ const users: MockUser[] = [
   }
 ];
 
-// Log admin credentials for easy reference
-console.log('Admin credentials:');
-console.log('Email: admin@example.com');
-console.log('Password: admin123');
-console.log('Admin ID:', adminId.toString());
+// Log the admin details on startup for debugging
+console.log('Debug user model loaded');
+console.log('Admin email:', users[0].email);
+console.log('Admin ID:', users[0]._id.toString());
+console.log('Admin is_admin:', users[0].is_admin);
 
-class MockUserModel {
+class DebugUserModel {
   /**
-   * Register a new user
-   * Modified to prevent creating new users - only admin allowed
+   * Register a new user with debug output
    */
   async register(userData: RegisterUserInput): Promise<UserResponse> {
+    console.log('Registering new user:', userData.email);
+    
     const { username, email, password } = userData;
     
-    // Always throw an error - no new user registrations allowed
-    throw new Error('New user registration is disabled. Only admin user is available.');
+    // Check if user already exists
+    const userExists = users.find(user => user.username === username || user.email === email);
     
-    // The code below will never execute, but kept for reference
-    /*
+    if (userExists) {
+      console.log('User already exists with this email/username');
+      throw new Error('User with this username or email already exists');
+    }
+    
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -74,6 +75,8 @@ class MockUserModel {
     // Add to in-memory storage
     users.push(newUser);
     
+    console.log('New user created with ID:', newUserId.toString());
+    
     // Return user data without password
     return {
       id: newUserId.toString(),
@@ -82,22 +85,30 @@ class MockUserModel {
       is_admin: newUser.is_admin,
       created_at: newUser.created_at
     };
-    */
   }
   
   /**
-   * Find user by email (for login)
+   * Find user by email with debug output
    */
   async findByEmail(email: string): Promise<MockUser | null> {
+    console.log('Looking for user by email:', email);
     const user = users.find(user => user.email === email);
+    console.log('User found?', !!user);
+    if (user) {
+      console.log('User ID:', user._id.toString());
+      console.log('Is admin?', user.is_admin);
+    }
     return user || null;
   }
   
   /**
-   * Find user by ID
+   * Find user by ID with debug output
    */
   async findById(id: string): Promise<UserResponse | null> {
+    console.log('Looking for user by ID:', id);
     const user = users.find(user => user._id.toString() === id);
+    
+    console.log('User found?', !!user);
     
     if (!user) {
       return null;
@@ -114,29 +125,7 @@ class MockUserModel {
   }
   
   /**
-   * Check if user is admin
-   */
-  async isAdmin(userId: string): Promise<boolean> {
-    const user = users.find(user => user._id.toString() === userId);
-    return user ? user.is_admin : false;
-  }
-  
-  /**
-   * Make a user an admin (for testing purposes)
-   */
-  async makeAdmin(userId: string): Promise<boolean> {
-    const user = users.find(user => user._id.toString() === userId);
-    
-    if (!user) {
-      return false;
-    }
-    
-    user.is_admin = true;
-    return true;
-  }
-  
-  /**
-   * Get all users (for testing purposes)
+   * Get all users (for debugging)
    */
   async getAllUsers(): Promise<UserResponse[]> {
     return users.map(user => ({
@@ -149,4 +138,4 @@ class MockUserModel {
   }
 }
 
-export default new MockUserModel();
+export default new DebugUserModel();
