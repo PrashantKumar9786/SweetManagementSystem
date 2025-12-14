@@ -99,7 +99,7 @@ A full-stack application for managing a sweet shop inventory, including both bac
 ## Screenshots
   **Admin Portal**
   <img width="1280" height="717" alt="image" src="https://github.com/user-attachments/assets/79e04954-129d-4898-bae8-e72cf7dcaa26" />
-  <img width="820" height="620" alt="image" src="https://github.com/user-attachments/assets/cde6e9d0-52c0-4cf7-bbce-a1ab61af6c92" />
+  
  Costumer Flow
   <img width="1071" height="1280" alt="image" src="https://github.com/user-attachments/assets/61cb2ae3-7a9e-4ce5-a1d4-81f7e1ce4ed2" />
   <img width="624" height="626" alt="image" src="https://github.com/user-attachments/assets/0fa3859f-f942-49b5-a594-e22900734c38" />
