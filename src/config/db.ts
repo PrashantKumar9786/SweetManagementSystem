@@ -1,48 +1,60 @@
-import { Pool } from 'pg';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create a new PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Set a connection timeout
-  connectionTimeoutMillis: 5000,
-  // Add a retry strategy
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-});
+// MongoDB connection URL (from environment variables)
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_management';
 
-// Handle pool connection errors
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
+// Configure mongoose
+mongoose.set('strictQuery', true);
 
-// Function to test database connection
-export const testConnection = async () => {
-  let client;
+// Function to connect to MongoDB
+export const connectDB = async () => {
   try {
-    client = await pool.connect();
-    console.log('Successfully connected to PostgreSQL database');
+    await mongoose.connect(MONGODB_URI);
+    console.log('Successfully connected to MongoDB database');
     return true;
   } catch (error) {
-    console.error('Error connecting to database:', error);
+    console.error('Error connecting to MongoDB:', error);
     return false;
-  } finally {
-    if (client) client.release();
   }
 };
 
-// Export the query method for use in models
-export default {
-  query: async (text: string, params?: any[]) => {
-    try {
-      return await pool.query(text, params);
-    } catch (error) {
-      console.error('Database query error:', error);
-      throw error;
+// Function to test database connection
+export const testConnection = async () => {
+  try {
+    // Check if mongoose is already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log('MongoDB connection already established');
+      return true;
     }
-  },
-  testConnection
+
+    // Try to connect
+    await connectDB();
+    return true;
+  } catch (error) {
+    console.error('Error testing MongoDB connection:', error);
+    return false;
+  }
+};
+
+// Function to close the database connection
+export const closeConnection = async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
+    return true;
+  } catch (error) {
+    console.error('Error closing MongoDB connection:', error);
+    return false;
+  }
+};
+
+// Export mongoose for direct access
+export default {
+  mongoose,
+  testConnection,
+  connectDB,
+  closeConnection
 };

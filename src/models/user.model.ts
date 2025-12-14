@@ -1,6 +1,6 @@
-import db from '../config/db';
 import bcrypt from 'bcrypt';
 import { User, UserResponse, RegisterUserInput } from '../types';
+import UserSchema from './schemas/user.schema';
 
 class UserModel {
   /**
@@ -10,62 +10,79 @@ class UserModel {
     const { username, email, password } = userData;
     
     // Check if user already exists
-    const userExists = await db.query(
-      'SELECT * FROM users WHERE username = $1 OR email = $2',
-      [username, email]
-    );
+    const existingUser = await UserSchema.findOne({
+      $or: [{ username }, { email }]
+    });
     
-    if (userExists.rowCount && userExists.rowCount > 0) {
+    if (existingUser) {
       throw new Error('User with this username or email already exists');
     }
     
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Create new user (password will be hashed by the pre-save hook)
+    const user = new UserSchema({ 
+      username, 
+      email, 
+      password,
+      is_admin: false
+    });
     
-    // Insert the new user
-    const result = await db.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, is_admin, created_at',
-      [username, email, hashedPassword]
-    );
+    // Save user to database
+    await user.save();
     
-    return result.rows[0];
+    // Convert to response format (without password)
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      is_admin: user.is_admin,
+      created_at: user.created_at
+    };
   }
   
   /**
    * Find user by email (for login)
    */
   async findByEmail(email: string): Promise<User | null> {
-    const result = await db.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    );
-    
-    return result.rowCount && result.rowCount > 0 ? result.rows[0] : null;
+    return await UserSchema.findOne({ email });
   }
   
   /**
    * Find user by ID
    */
-  async findById(id: number): Promise<UserResponse | null> {
-    const result = await db.query(
-      'SELECT id, username, email, is_admin, created_at FROM users WHERE id = $1',
-      [id]
-    );
+  async findById(id: string): Promise<UserResponse | null> {
+    const user = await UserSchema.findById(id).select('-password');
     
-    return result.rowCount && result.rowCount > 0 ? result.rows[0] : null;
+    if (!user) {
+      return null;
+    }
+    
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      is_admin: user.is_admin,
+      created_at: user.created_at
+    };
   }
   
   /**
    * Check if user is admin
    */
-  async isAdmin(userId: number): Promise<boolean> {
-    const result = await db.query(
-      'SELECT is_admin FROM users WHERE id = $1',
-      [userId]
+  async isAdmin(userId: string): Promise<boolean> {
+    const user = await UserSchema.findById(userId).select('is_admin');
+    return user ? user.is_admin : false;
+  }
+  
+  /**
+   * Make a user an admin (for testing purposes)
+   */
+  async makeAdmin(userId: string): Promise<boolean> {
+    const result = await UserSchema.updateOne(
+      { _id: userId },
+      { is_admin: true }
     );
     
-    return result.rowCount && result.rowCount > 0 ? result.rows[0].is_admin : false;
+    return result.modifiedCount > 0;
   }
 }
 

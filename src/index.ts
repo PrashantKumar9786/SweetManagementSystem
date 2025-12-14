@@ -1,8 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import db, { testConnection } from './config/db';
-import { initializeDatabase, seedTestData } from './utils/dbInit';
+import db, { connectDB, testConnection } from './config/db';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -64,16 +63,8 @@ async function startServer() {
     // Test database connection
     const dbConnected = await testConnection();
     
-    if (dbConnected) {
-      // Initialize database schema
-      await initializeDatabase();
-      
-      // Optionally seed test data (can be toggled with an env variable)
-      if (process.env.NODE_ENV !== 'production') {
-        await seedTestData();
-      }
-    } else {
-      console.warn('Database connection failed - proceeding without database initialization');
+    if (!dbConnected) {
+      console.warn('Database connection failed - proceeding without database connection');
       console.warn('API will run in limited mode - some endpoints may not function properly');
     }
     

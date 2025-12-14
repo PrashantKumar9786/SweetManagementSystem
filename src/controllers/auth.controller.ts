@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import UserModel from '../models/user.model';
+// Use mock model for testing (switch to real model in production)
+import UserModel from '../models/mock-user.model';
 import { RegisterUserInput, LoginUserInput } from '../types';
 
 class AuthController {
@@ -42,7 +43,7 @@ class AuthController {
       
       // Generate JWT token
       const token = jwt.sign(
-        { userId: newUser.id, username: newUser.username, isAdmin: newUser.is_admin },
+        { userId: newUser.id.toString(), username: newUser.username, isAdmin: newUser.is_admin },
         process.env.JWT_SECRET || 'default_jwt_secret',
         { expiresIn: '24h' }
       );
@@ -93,7 +94,7 @@ class AuthController {
       }
       
       // Check password
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await user.comparePassword(password);
       if (!isPasswordValid) {
         return res.status(401).json({ 
           success: false, 
@@ -103,7 +104,7 @@ class AuthController {
       
       // Generate JWT token
       const token = jwt.sign(
-        { userId: user.id, username: user.username, isAdmin: user.is_admin },
+        { userId: user._id.toString(), username: user.username, isAdmin: user.is_admin },
         process.env.JWT_SECRET || 'default_jwt_secret',
         { expiresIn: '24h' }
       );
@@ -112,7 +113,7 @@ class AuthController {
         success: true,
         message: 'Login successful',
         user: {
-          id: user.id,
+          id: user._id.toString(),
           username: user.username,
           email: user.email,
           isAdmin: user.is_admin
