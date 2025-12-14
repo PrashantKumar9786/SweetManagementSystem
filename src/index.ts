@@ -5,6 +5,7 @@ import db, { connectDB, testConnection } from './config/db';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import sweetRoutes from './routes/sweet.routes';
 
 // Load environment variables
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/sweets', sweetRoutes);
 
 // API Status route
 app.get('/', (req, res) => {
