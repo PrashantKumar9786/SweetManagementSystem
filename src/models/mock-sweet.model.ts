@@ -13,35 +13,105 @@ type MockSweet = {
   updated_at: Date;
 };
 
-// In-memory storage for sweets
+// In-memory storage for sweets - Indian sweets data
 const sweets: MockSweet[] = [
   {
     _id: new Types.ObjectId(),
-    name: 'Chocolate Truffle',
-    category: 'Chocolate',
-    description: 'Rich chocolate truffle with a smooth ganache center',
-    price: 2.50,
-    quantity: 100,
+    name: "Gulab Jamun",
+    category: "MILK_BASED",
+    description: "Gulab Jamun - ₹420/kg includes 5% GST.",
+    price: 420,
+    quantity: 25,
     created_at: new Date(),
     updated_at: new Date()
   },
   {
     _id: new Types.ObjectId(),
-    name: 'Vanilla Fudge',
-    category: 'Fudge',
-    description: 'Creamy vanilla fudge',
-    price: 1.75,
-    quantity: 75,
+    name: "Rasgulla",
+    category: "BENGALI",
+    description: "Rasgulla - ₹380/kg includes 5% GST.",
+    price: 380,
+    quantity: 18,
     created_at: new Date(),
     updated_at: new Date()
   },
   {
     _id: new Types.ObjectId(),
-    name: 'Strawberry Candy',
-    category: 'Hard Candy',
-    description: 'Sweet strawberry flavored hard candy',
-    price: 0.99,
-    quantity: 200,
+    name: "Kaju Katli",
+    category: "DRY_FRUIT",
+    description: "Kaju Katli - ₹980/kg includes 5% GST.",
+    price: 980,
+    quantity: 12,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Motichoor Ladoo",
+    category: "NORTH_INDIAN",
+    description: "Motichoor Ladoo - ₹520/kg includes 5% GST.",
+    price: 520,
+    quantity: 20,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Mysore Pak",
+    category: "FESTIVE",
+    description: "Mysore Pak - ₹640/kg includes 5% GST.",
+    price: 640,
+    quantity: 10,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Gajar Halwa",
+    category: "HALWA",
+    description: "Gajar Halwa - ₹480/kg includes 5% GST.",
+    price: 480,
+    quantity: 15,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Moong Dal Halwa",
+    category: "HALWA",
+    description: "Moong Dal Halwa - ₹720/kg includes 5% GST.",
+    price: 720,
+    quantity: 8,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Rasmalai",
+    category: "MILK_BASED",
+    description: "Rasmalai - ₹520/kg includes 5% GST.",
+    price: 520,
+    quantity: 10,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Sugar-Free Kaju Katli",
+    category: "SUGAR_FREE",
+    description: "Sugar-Free Kaju Katli - ₹1150/kg includes 5% GST. Sugar-free option.",
+    price: 1150,
+    quantity: 5,
+    created_at: new Date(),
+    updated_at: new Date()
+  },
+  {
+    _id: new Types.ObjectId(),
+    name: "Sugar-Free Badam Barfi",
+    category: "SUGAR_FREE",
+    description: "Sugar-Free Badam Barfi - ₹1080/kg includes 5% GST. Sugar-free option.",
+    price: 1080,
+    quantity: 4,
     created_at: new Date(),
     updated_at: new Date()
   }

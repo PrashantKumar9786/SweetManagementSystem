@@ -43,16 +43,17 @@ console.log('Admin ID:', adminId.toString());
 class MockUserModel {
   /**
    * Register a new user
-   * Modified to prevent creating new users - only admin allowed
    */
   async register(userData: RegisterUserInput): Promise<UserResponse> {
     const { username, email, password } = userData;
     
-    // Always throw an error - no new user registrations allowed
-    throw new Error('New user registration is disabled. Only admin user is available.');
+    // Check if user already exists
+    const userExists = users.find(user => user.username === username || user.email === email);
     
-    // The code below will never execute, but kept for reference
-    /*
+    if (userExists) {
+      throw new Error('User with this username or email already exists');
+    }
+    
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -73,6 +74,7 @@ class MockUserModel {
     
     // Add to in-memory storage
     users.push(newUser);
+    console.log(`New user registered: ${username} (${email})`);
     
     // Return user data without password
     return {
@@ -82,7 +84,6 @@ class MockUserModel {
       is_admin: newUser.is_admin,
       created_at: newUser.created_at
     };
-    */
   }
   
   /**
